@@ -1,0 +1,190 @@
+Stream real-time tweets using Tweepy
+✅ Store data in MongoDB
+✅ Preprocess and clean the data using pandas
+✅ Train a sentiment analysis model using scikit-learn
+✅ Build a real-time dashboard using Dash
+
+Setting Up the Environment
+First, make sure the following libraries are installed:
+pip install tweepy pymongo pandas scikit-learn dash plotly pyspark
+
+Project Structure
+real_time_sentiment/
+├── app.py               # Main application script
+├── twitter_stream.py     # Twitter data collection
+└── requirements.txt      # Libraries list for deployment
+
+Step 1: Collect Real-Time Tweets (twitter_stream.py)
+I'll stream tweets in real-time and store them in MongoDB.
+
+Code: twitter_stream.py
+import tweepy
+from pymongo import MongoClient
+
+# Twitter API credentials
+api_key = "YOUR_API_KEY"
+api_secret = "YOUR_API_SECRET"
+access_token = "YOUR_ACCESS_TOKEN"
+access_token_secret = "YOUR_ACCESS_TOKEN_SECRET"
+
+# MongoDB connection
+client = MongoClient('localhost', 27017)
+db = client['twitter_data']
+collection = db['tweets']
+
+# Tweepy Authentication
+auth = tweepy.OAuthHandler(api_key, api_secret)
+auth.set_access_token(access_token, access_token_secret)
+api = tweepy.API(auth)
+
+# Stream Listener
+class MyStreamListener(tweepy.StreamListener):
+    def on_status(self, status):
+        if status.lang == 'en':
+            tweet = {"text": status.text, "created_at": status.created_at}
+            collection.insert_one(tweet)
+            print(tweet)
+
+# Start Streaming
+myStreamListener = MyStreamListener()
+myStream = tweepy.Stream(auth=api.auth, listener=myStreamListener)
+myStream.filter(track=['AI', 'Machine Learning', 'Big Data'])
+
+import tweepy
+from pymongo import MongoClient
+
+# Twitter API credentials
+api_key = "YOUR_API_KEY"
+api_secret = "YOUR_API_SECRET"
+access_token = "YOUR_ACCESS_TOKEN"
+access_token_secret = "YOUR_ACCESS_TOKEN_SECRET"
+
+# MongoDB connection
+client = MongoClient('localhost', 27017)
+db = client['twitter_data']
+collection = db['tweets']
+
+# Tweepy Authentication
+auth = tweepy.OAuthHandler(api_key, api_secret)
+auth.set_access_token(access_token, access_token_secret)
+api = tweepy.API(auth)
+
+# Stream Listener
+class MyStreamListener(tweepy.StreamListener):
+    def on_status(self, status):
+        if status.lang == 'en':
+            tweet = {"text": status.text, "created_at": status.created_at}
+            collection.insert_one(tweet)
+            print(tweet)
+
+
+
+Step 2: Data Preprocessing and Cleaning (app.py)
+Next, I'll preprocess the collected tweets using pandas.
+
+Code: app.py (Data Preprocessing)
+import pandas as pd
+from pymongo import MongoClient
+
+# MongoDB connection
+client = MongoClient('localhost', 27017)
+db = client['twitter_data']
+collection = db['tweets']
+
+# Load tweets from MongoDB
+tweets = pd.DataFrame(list(collection.find()))
+
+# Clean text
+tweets['cleaned_text'] = tweets['text'].str.replace(r'http\S+', '', regex=True)  # Remove URLs
+tweets['cleaned_text'] = tweets['cleaned_text'].str.replace(r'@\w+', '', regex=True)  # Remove mentions
+
+# Save cleaned data
+tweets.to_csv('cleaned_tweets.csv', index=False)
+print("Data cleaned and saved!")
+Step 3: Train a Sentiment Analysis Model (app.py)
+I'll use scikit-learn to build a simple sentiment analysis model.
+
+Code: app.py (Model Training)
+python
+Copy code
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score
+
+# Load cleaned data
+df = pd.read_csv('cleaned_tweets.csv')
+
+# Label sentiments manually for now (Positive=1, Negative=0)
+df['sentiment'] = [1 if 'good' in text else 0 for text in df['cleaned_text']]
+
+# Prepare data
+X = df['cleaned_text']
+y = df['sentiment']
+vectorizer = CountVectorizer()
+X_vectorized = vectorizer.fit_transform(X)
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(X_vectorized, y, test_size=0.2, random_state=42)
+
+# Train model
+model = MultinomialNB()
+model.fit(X_train, y_train)
+
+# Evaluate
+y_pred = model.predict(X_test)
+print("Accuracy:", accuracy_score(y_test, y_pred))
+Step 4: Build a Real-Time Dashboard (app.py)
+Finally, I'll create a real-time dashboard using Dash and Plotly.
+
+Code: app.py (Dashboard)
+python
+Copy code
+import dash
+from dash import dcc, html
+import plotly.express as px
+import pandas as pd
+
+# Load sentiment data
+df = pd.read_csv('cleaned_tweets.csv')
+
+# Sample Data for visualization
+data = {
+    "Sentiment": ["Positive", "Negative"],
+    "Count": [df[df['sentiment'] == 1].shape[0], df[df['sentiment'] == 0].shape[0]]
+}
+
+# Create Bar Chart
+fig = px.bar(data, x='Sentiment', y='Count', title="Sentiment Analysis Results")
+
+# Build Dash App
+app = dash.Dash(__name__)
+app.layout = html.Div([
+    dcc.Graph(figure=fig)
+])
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
+☁️ Deployment Guide
+To deploy the project, follow these steps:
+
+Create a requirements.txt file:
+text
+Copy code
+tweepy
+pymongo
+pandas
+scikit-learn
+dash
+plotly
+Use Heroku for cloud deployment:
+bash
+Copy code
+heroku login
+heroku create
+git push heroku main
+🎉 Bonus Features to Add:
+Real-Time Alerts: Send alerts if negative sentiment exceeds a threshold.
+Hashtag Analysis: Identify the most trending hashtags.
+Geolocation Sentiment Mapping: Display sentiment analysis by region.
+
