@@ -1,0 +1,29 @@
+# Input values
+P = float(input("Enter the Principal Amount: "))
+r = float(input("Enter the Rate of Interest: "))
+t = int(input("Enter the Time (in years): "))
+
+# Initialize variables
+year = 1
+amount = P
+
+# Calculate compound interest using while loop
+while year <= t:
+    amount += amount * (r / 100)
+    print(f"Year {year}: Total Amount = {amount:.2f}")
+    year += 1
+
+# Final output
+compound_interest = amount - P
+print(f"\nTotal Compound Interest = {compound_interest:.2f}")
+print(f"Final Amount = {amount:.2f}")
+Enter the Principal Amount: 1000
+Enter the Rate of Interest: 5
+Enter the Time (in years): 3
+
+Year 1: Total Amount = 1050.00
+Year 2: Total Amount = 1102.50
+Year 3: Total Amount = 1157.63
+
+Total Compound Interest = 157.63
+Final Amount = 1157.63
