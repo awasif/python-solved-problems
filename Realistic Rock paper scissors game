@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .score {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+
+        .score-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hands-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .hand {
+            font-size: 8em;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .player-hand {
+            transform: scaleX(-1);
+        }
+
+        .computer-hand {
+            transform: scaleX(1);
+        }
+
+        .hand.shake {
+            animation: shake 0.6s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 20%, 40%, 60%, 80%, 100% { transform: translateY(0) scaleX(-1); }
+            10%, 30%, 50%, 70%, 90% { transform: translateY(-20px) scaleX(-1); }
+        }
+
+        .computer-hand.shake {
+            animation: computerShake 0.6s ease-in-out;
+        }
+
+        @keyframes computerShake {
+            0%, 20%, 40%, 60%, 80%, 100% { transform: translateY(0) scaleX(1); }
+            10%, 30%, 50%, 70%, 90% { transform: translateY(-20px) scaleX(1); }
+        }
+
+        .vs {
+            font-size: 2em;
+            font-weight: bold;
+            opacity: 0.7;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+        }
+
+        .choices {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .choice-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 3em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            min-width: 100px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .choice-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .choice-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .choice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .result.win {
+            color: #4CAF50;
+        }
+
+        .result.lose {
+            color: #f44336;
+        }
+
+        .result.tie {
+            color: #ff9800;
+        }
+
+        .countdown {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .play-again {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .play-again:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .instructions {
+            font-size: 1.1em;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .player-label, .computer-label {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            font-weight: bold;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🪨 📄 ✂️</h1>
+        <p class="subtitle">The Classic Hand Game</p>
+        
+        <div class="score-board">
+            <div class="score">
+                <div class="score-label">You</div>
+                <div class="score-value" id="playerScore">0</div>
+            </div>
+            <div class="score">
+                <div class="score-label">Computer</div>
+                <div class="score-value" id="computerScore">0</div>
+            </div>
+        </div>
+
+        <div class="hands-container">
+            <div class="player-side">
+                <div class="player-label">You</div>
+                <div class="hand player-hand" id="playerHand">✊</div>
+            </div>
+            <div class="vs">VS</div>
+            <div class="computer-side">
+                <div class="computer-label">Computer</div>
+                <div class="hand computer-hand" id="computerHand">✊</div>
+            </div>
+        </div>
+
+        <div class="countdown" id="countdown"></div>
+        <div class="result" id="result"></div>
+
+        <div class="instructions" id="instructions">
+            Choose your weapon!
+        </div>
+
+        <div class="choices" id="choices">
+            <button class="choice-btn" data-choice="rock">🪨</button>
+            <button class="choice-btn" data-choice="paper">📄</button>
+            <button class="choice-btn" data-choice="scissors">✂️</button>
+        </div>
+
+        <button class="play-again" id="playAgain" style="display: none;">Play Again</button>
+    </div>
+
+    <script>
+        class RockPaperScissors {
+            constructor() {
+                this.playerScore = 0;
+                this.computerScore = 0;
+                this.isPlaying = false;
+                this.choices = ['rock', 'paper', 'scissors'];
+                this.emojis = {
+                    rock: '🪨',
+                    paper: '📄',
+                    scissors: '✂️'
+                };
+                this.initializeGame();
+            }
+
+            initializeGame() {
+                this.updateScore();
+                this.bindEvents();
+                this.resetHands();
+            }
+
+            bindEvents() {
+                const choiceButtons = document.querySelectorAll('.choice-btn');
+                choiceButtons.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        if (!this.isPlaying) {
+                            const choice = e.target.dataset.choice;
+                            this.playRound(choice);
+                        }
+                    });
+                });
+
+                document.getElementById('playAgain').addEventListener('click', () => {
+                    this.resetGame();
+                });
+            }
+
+            async playRound(playerChoice) {
+                this.isPlaying = true;
+                this.disableButtons();
+                
+                document.getElementById('result').textContent = '';
+                document.getElementById('instructions').textContent = 'Get ready...';
+                
+                // Countdown
+                await this.showCountdown();
+                
+                // Show shaking animation
+                document.getElementById('playerHand').classList.add('shake');
+                document.getElementById('computerHand').classList.add('shake');
+                
+                // Generate computer choice
+                const computerChoice = this.getComputerChoice();
+                
+                // Wait for shake animation
+                await this.wait(600);
+                
+                // Remove shake animation and show choices
+                document.getElementById('playerHand').classList.remove('shake');
+                document.getElementById('computerHand').classList.remove('shake');
+                
+                // Reveal choices
+                document.getElementById('playerHand').textContent = this.emojis[playerChoice];
+                document.getElementById('computerHand').textContent = this.emojis[computerChoice];
+                
+                // Determine winner
+                const result = this.determineWinner(playerChoice, computerChoice);
+                this.displayResult(result, playerChoice, computerChoice);
+                
+                // Update score
+                if (result === 'win') {
+                    this.playerScore++;
+                } else if (result === 'lose') {
+                    this.computerScore++;
+                }
+                this.updateScore();
+                
+                // Show play again button
+                document.getElementById('playAgain').style.display = 'inline-block';
+                document.getElementById('instructions').textContent = 'Ready for another round?';
+            }
+
+            async showCountdown() {
+                const countdownEl = document.getElementById('countdown');
+                const counts = ['3', '2', '1', 'SHOOT!'];
+                
+                for (let count of counts) {
+                    countdownEl.textContent = count;
+                    await this.wait(600);
+                }
+                countdownEl.textContent = '';
+            }
+
+            getComputerChoice() {
+                return this.choices[Math.floor(Math.random() * this.choices.length)];
+            }
+
+            determineWinner(playerChoice, computerChoice) {
+                if (playerChoice === computerChoice) {
+                    return 'tie';
+                }
+                
+                const winConditions = {
+                    rock: 'scissors',
+                    paper: 'rock',
+                    scissors: 'paper'
+                };
+                
+                return winConditions[playerChoice] === computerChoice ? 'win' : 'lose';
+            }
+
+            displayResult(result, playerChoice, computerChoice) {
+                const resultEl = document.getElementById('result');
+                let message = '';
+                
+                switch(result) {
+                    case 'win':
+                        message = `🎉 You Win! ${this.emojis[playerChoice]} beats ${this.emojis[computerChoice]}`;
+                        resultEl.className = 'result win';
+                        break;
+                    case 'lose':
+                        message = `💔 You Lose! ${this.emojis[computerChoice]} beats ${this.emojis[playerChoice]}`;
+                        resultEl.className = 'result lose';
+                        break;
+                    case 'tie':
+                        message = `🤝 It's a Tie! Both chose ${this.emojis[playerChoice]}`;
+                        resultEl.className = 'result tie';
+                        break;
+                }
+                
+                resultEl.textContent = message;
+            }
+
+            updateScore() {
+                document.getElementById('playerScore').textContent = this.playerScore;
+                document.getElementById('computerScore').textContent = this.computerScore;
+            }
+
+            disableButtons() {
+                const buttons = document.querySelectorAll('.choice-btn');
+                buttons.forEach(btn => btn.disabled = true);
+            }
+
+            enableButtons() {
+                const buttons = document.querySelectorAll('.choice-btn');
+                buttons.forEach(btn => btn.disabled = false);
+            }
+
+            resetHands() {
+                document.getElementById('playerHand').textContent = '✊';
+                document.getElementById('computerHand').textContent = '✊';
+            }
+
+            resetGame() {
+                this.isPlaying = false;
+                this.enableButtons();
+                this.resetHands();
+                document.getElementById('result').textContent = '';
+                document.getElementById('countdown').textContent = '';
+                document.getElementById('instructions').textContent = 'Choose your weapon!';
+                document.getElementById('playAgain').style.display = 'none';
+            }
+
+            wait(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        // Initialize the game when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new RockPaperScissors();
+        });
+    </script>
+</body>
+</html>
